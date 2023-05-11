@@ -23,19 +23,18 @@
    */
   function init() {
     let moveButtons = qsa('#p1 .moves button');
-    for(let button of moveButtons) {
-        button.addEventListener('click', async function() {
-            console.log("clicked");
-            let move = button.querySelector('.move').textContent.replace(/\s/g, '');
-            await playMove(move);
-        });
+    for (let button of moveButtons) {
+      button.addEventListener('click', async function() {
+        let move = button.querySelector('.move').textContent.replace(/\s/g, '');
+        await playMove(move);
+      });
     }
-    id('flee-btn').addEventListener('click',  async function() {
+    id('flee-btn').addEventListener('click', async function() {
         await playMove("flee");
     });
-    id('endgame').addEventListener('click', function(){
-        id('start-btn').classList.remove('hidden');
-        reset();
+    id('endgame').addEventListener('click', function() {
+      id('start-btn').classList.remove('hidden');
+      reset();
     });
     reset();
     id('start-btn').addEventListener('click', gameView);
@@ -59,9 +58,7 @@
   }
 
   function endGame(playerWon, pokeName) {
-    // 显示游戏结果
     qs('h1').textContent = playerWon ? 'You won!' : 'You lost!';
-    // 禁用所有移动按钮
     let moveButtons = qsa('#p1 .moves button');
     for (let button of moveButtons) {
       button.disabled = true;
@@ -76,6 +73,7 @@
       });
     }
   }
+
   /**
    * Returns the element with the specified id attribute.
    * @param {string} id string representing the id attribute of the element to be returned.
@@ -84,7 +82,6 @@
   function id(id) {
     return document.getElementById(id);
   }
-
 
   async function pokedexBuild() {
     id("pokedex-view").innerHTML = "";
@@ -95,7 +92,7 @@
       let pokeObj = await response.text();
       addPokedex(pokeObj);
     } catch (err) {
-        console.log(err);
+      console.log(err);
     }
   }
 
@@ -129,23 +126,24 @@
   }
 
   async function displayPokemonData(pokemonShortName, playerId) {
-    const API_BASE_URL = "https://courses.cs.washington.edu/courses/cse154/webservices/pokedex/";
+    const API_URL = "https://courses.cs.washington.edu/courses/cse154/webservices/pokedex/";
     try {
-      let response = await fetch(API_BASE_URL + 'pokedex.php?pokemon=' + pokemonShortName);
+      let response = await fetch(API_URL + 'pokedex.php?pokemon=' + pokemonShortName);
       await statusCheck(response);
       let data = await response.json();
       qs(playerId + ' .name').textContent = data.name;
-      qs(playerId + ' .pokepic').src = API_BASE_URL + data.images.photo;
-      qs(playerId + ' .type').src = API_BASE_URL + data.images.typeIcon;
-      qs(playerId + ' .weakness').src = API_BASE_URL + data.images.weaknessIcon;
+      qs(playerId + ' .pokepic').src = API_URL + data.images.photo;
+      qs(playerId + ' .type').src = API_URL + data.images.typeIcon;
+      qs(playerId + ' .weakness').src = API_URL + data.images.weaknessIcon;
       qs(playerId + ' .hp').textContent = data.hp + 'HP';
       qs(playerId + ' .info').textContent = data.info.description;
       // Populate moves
-      let moves = document.querySelectorAll(playerId + ' .moves button');
+      let moves = qsa(playerId + ' .moves button');
       for (let i = 0; i < moves.length; i++) {
         if (i < data.moves.length) {
+          moves[i].querySelector('.dp').innerHTML = '';
           moves[i].querySelector('.move').textContent = data.moves[i].name;
-          moves[i].querySelector('img').src = API_BASE_URL + "icons/" + data.moves[i].type + ".jpg";
+          moves[i].querySelector('img').src = API_URL + "icons/" + data.moves[i].type + ".jpg";
           if (data.moves[i].dp) {
             moves[i].querySelector('.dp').textContent = data.moves[i].dp + ' DP';
           }
@@ -182,18 +180,12 @@
     document.querySelector('h1').textContent = 'Pokemon Battle!';
     let pokeData = new FormData();
     pokeData.append("startgame", true);
-    //let shortName =  qs('#p1 .name').textContent.toLocaleLowerCase();
     pokeData.append("mypokemon", currentPokemon);
-  // 发送POST请求以初始化游戏
     let response = await fetch(GAME_URL, {method: 'POST', body: pokeData});
     await statusCheck(response);
     let data = await response.json();
-
-    // 保存guid和pid
     guid = data.guid;
     pid = data.pid;
-
-    // 显示对手的卡片
     displayPokemonData(data.p2.shortname, '#p2');
   }
 
@@ -205,18 +197,19 @@
     formData.append('pid', pid);
     formData.append('movename', move);
     try {
-        let response = await fetch(GAME_URL, {method: 'POST', body: formData});
-        await statusCheck(response);
-        let data = await response.json();
-        updateGameState(data);
+      let response = await fetch(GAME_URL, {method: 'POST', body: formData});
+      await statusCheck(response);
+      let data = await response.json();
+      updateGameState(data);
     } catch (err) {
-        console.error(err);
+      console.error(err);
     } finally {
-        document.querySelector('#loading').classList.add('hidden');
+      document.querySelector('#loading').classList.add('hidden');
     }
 }
 
 function updateGameState(data) {
+  const PERCENT_NUM = 100;
   id('p1-turn-results').classList.remove('hidden');
   id('p2-turn-results').classList.remove('hidden');
   console.log(data);
@@ -224,12 +217,12 @@ function updateGameState(data) {
   qs('#p1 .card .hp').textContent = `${p1HP}HP`;
   let p2HP = data.p2['current-hp'];
   qs('#p2 .card .hp').textContent = `${p2HP}HP`;
-  qs('#p1 .health-bar').style.width = `${p1HP / data.p1.hp * 100}%`;
-  if(p1HP / data.p1.hp <= 0.2) {
+  qs('#p1 .health-bar').style.width = `${p1HP / data.p1.hp * PERCENT_NUM}%`;
+  if (p1HP / data.p1.hp <= 0.2) {
     qs('#p1 .health-bar').classList.add('low-health');
   }
-  qs('#p2 .health-bar').style.width = `${p2HP / data.p2.hp * 100}%`;
-  if(p2HP / data.p2.hp <= 0.2) {
+  qs('#p2 .health-bar').style.width = `${p2HP / data.p2.hp * PERCENT_NUM}%`;
+  if (p2HP / data.p2.hp <= 0.2) {
     qs('#p2 .health-bar').classList.add('low-health');
   }
   id('p1-turn-results').textContent = `Player 1 played ${data.results['p1-move']} and ${data.results['p1-result']}!`;
@@ -244,6 +237,7 @@ function updateGameState(data) {
     endGame(true, data.p2.shortname);
   }
 }
+
   /**
    * Checks the response status and throws an error if it's not OK.
    * @param {Response} res - The fetch response object
