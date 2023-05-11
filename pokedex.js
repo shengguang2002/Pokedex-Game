@@ -111,7 +111,7 @@
       let pokeObj = await response.text();
       addPokedex(pokeObj);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -272,7 +272,6 @@
     const LOW_HP = 0.2;
     id('p1-turn-results').classList.remove('hidden');
     id('p2-turn-results').classList.remove('hidden');
-    console.log(data);
     let p1HP = data.p1['current-hp'];
     qs('#p1 .card .hp').textContent = `${p1HP}HP`;
     let p2HP = data.p2['current-hp'];
