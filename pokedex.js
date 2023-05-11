@@ -18,8 +18,8 @@
   let pid;
 
   /**
-   * The init function initializes the event listeners for the move buttons, the flee button, 
-   * the end game button, and the start button. It also resets the game view to its initial state 
+   * The init function initializes the event listeners for the move buttons, the flee button,
+   * the end game button, and the start button. It also resets the game view to its initial state
    * and builds the Pokedex.
    */
   function init() {
@@ -31,7 +31,7 @@
       });
     }
     id('flee-btn').addEventListener('click', async function() {
-        await playMove("flee");
+      await playMove("flee");
     });
     id('endgame').addEventListener('click', function() {
       id('start-btn').classList.remove('hidden');
@@ -44,7 +44,8 @@
 
   /**
    * The reset function resets the game view to its initial state by hiding and showing
-   * certain elements, disabling the move buttons, and setting the h1 text content to "Your Pokedex".
+   * certain elements, disabling the move buttons,
+   * and setting the h1 text content to "Your Pokedex".
    */
   function reset() {
     id('pokedex-view').classList.remove('hidden');
@@ -99,7 +100,7 @@
   }
 
   /**
-   * This function builds the Pokedex by fetching data from a URL and calling addPokedex() to add 
+   * This function builds the Pokedex by fetching data from a URL and calling addPokedex() to add
    * the fetched data to the Pokedex.
    */
   async function pokedexBuild() {
@@ -116,8 +117,8 @@
   }
 
   /**
-   * This function adds Pokemon data to the Pokedex. It splits the fetched data into individual 
-   * Pokemon and adds their sprite images to the Pokedex. If the Pokemon is in the list of found 
+   * This function adds Pokemon data to the Pokedex. It splits the fetched data into individual
+   * Pokemon and adds their sprite images to the Pokedex. If the Pokemon is in the list of found
    * Pokemon, it is marked as found.
    *
    * @param {string} data - The fetched data from the Pokedex URL.
@@ -130,7 +131,7 @@
       let pokemonFullName = pokemon[0];
       let pokemonShortName = pokemon[1];
       let img = document.createElement("img");
-      img.src = "https://courses.cs.washington.edu/courses/cse154/webservices/pokedex/sprites/" + 
+      img.src = "https://courses.cs.washington.edu/courses/cse154/webservices/pokedex/sprites/" +
       pokemonShortName + ".png";
       img.alt = pokemonFullName;
       img.classList.add("sprite");
@@ -151,7 +152,7 @@
   }
 
   /**
-   * This function fetches and displays data for a specific Pokemon. It fetches the Pokemon data 
+   * This function fetches and displays data for a specific Pokemon. It fetches the Pokemon data
    * from a URL and calls pokeDisplay() to display the fetched data.
    *
    * @param {string} pokemonShortName - The short name of the Pokemon.
@@ -173,7 +174,7 @@
   }
 
   /**
-   * This function displays data for a specific Pokemon. It sets various elements in the player's 
+   * This function displays data for a specific Pokemon. It sets various elements in the player's
    * card to display the fetched Pokemon data.
    *
    * @param {Object} data - The fetched Pokemon data.
@@ -188,23 +189,23 @@
     qs(playerId + ' .hp').textContent = data.hp + 'HP';
     qs(playerId + ' .info').textContent = data.info.description;
     let moves = qsa(playerId + ' .moves button');
-      for (let i = 0; i < moves.length; i++) {
-        if (i < data.moves.length) {
-          moves[i].querySelector('.dp').innerHTML = '';
-          moves[i].querySelector('.move').textContent = data.moves[i].name;
-          moves[i].querySelector('img').src = API_URL + "icons/" + data.moves[i].type + ".jpg";
-          if (data.moves[i].dp) {
-            moves[i].querySelector('.dp').textContent = data.moves[i].dp + ' DP';
-          }
-          moves[i].classList.remove('hidden');
-        } else {
-          moves[i].classList.add('hidden');
+    for (let i = 0; i < moves.length; i++) {
+      if (i < data.moves.length) {
+        moves[i].querySelector('.dp').innerHTML = '';
+        moves[i].querySelector('.move').textContent = data.moves[i].name;
+        moves[i].querySelector('img').src = API_URL + "icons/" + data.moves[i].type + ".jpg";
+        if (data.moves[i].dp) {
+          moves[i].querySelector('.dp').textContent = data.moves[i].dp + ' DP';
         }
+        moves[i].classList.remove('hidden');
+      } else {
+        moves[i].classList.add('hidden');
       }
+    }
   }
 
   /**
-   * This function switches the view to the game view and initializes the game. It fetches game 
+   * This function switches the view to the game view and initializes the game. It fetches game
    * data from a URL and calls displayPokemonData() to display the opponent's Pokemon data.
    */
   async function gameView() {
@@ -236,8 +237,8 @@
   }
 
   /**
-   * This function sends a move to the server and updates the game state based on the server's 
-   * response. It fetches the response from the server and calls updateGameState() to update the game 
+   * This function sends a move to the server and updates the game state based on the server's
+   * response. It fetches the response from the server and calls updateGameState() to update the game
    * state.
    *
    * @param {string} move - The move to be played.
@@ -262,7 +263,7 @@
   }
 
   /**
-   * This function updates the game state based on the server's response. It updates the HP of both 
+   * This function update the game state based on the server's response. It updates the HP of both
    * Pokemon and the results of the turn, and checks if either Pokemon has been defeated.
    *
    * @param {Object} data - The server's response.
@@ -278,24 +279,35 @@
     qs('#p2 .card .hp').textContent = `${p2HP}HP`;
     qs('#p1 .health-bar').style.width = `${p1HP / data.p1.hp * PERCENT_NUM}%`;
     if (p1HP / data.p1.hp <= LOW_HP) {
-        qs('#p1 .health-bar').classList.add('low-health');
+      qs('#p1 .health-bar').classList.add('low-health');
     }
     qs('#p2 .health-bar').style.width = `${p2HP / data.p2.hp * PERCENT_NUM}%`;
     if (p2HP / data.p2.hp <= LOW_HP) {
-        qs('#p2 .health-bar').classList.add('low-health');
+      qs('#p2 .health-bar').classList.add('low-health');
     }
-    id('p1-turn-results').textContent = 
+    turnResult(data);
+    if (p1HP === 0) {
+      endGame(false, data.p2.shortname);
+    } else if (p2HP === 0) {
+      endGame(true, data.p2.shortname);
+    }
+  }
+
+  /**
+   * This function updates the text content of each player's turn results based on
+   * the received data.
+   * If there's no result for Player 2, it will hide Player 2's result.
+   *
+   * @param {Object} data - The server's response that includes the turn results for each player.
+   */
+  function turnResult(data) {
+    id('p1-turn-results').textContent =
     `Player 1 played ${data.results['p1-move']} and ${data.results['p1-result']}!`;
     if (data.results['p2-move'] && data.results['p2-result']) {
-        id('p2-turn-results').textContent = 
-        `Player 2 played ${data.results['p2-move']} and ${data.results['p2-result']}!`;
+      id('p2-turn-results').textContent =
+      `Player 2 played ${data.results['p2-move']} and ${data.results['p2-result']}!`;
     } else {
-        id('p2-turn-results').classList.add('hidden');
-    }
-    if (p1HP === 0) {
-        endGame(false, data.p2.shortname);
-    } else if (p2HP === 0) {
-        endGame(true, data.p2.shortname);
+      id('p2-turn-results').classList.add('hidden');
     }
   }
 
