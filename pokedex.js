@@ -238,8 +238,8 @@
 
   /**
    * This function sends a move to the server and updates the game state based on the server's
-   * response. It fetches the response from the server and calls updateGameState() to update the game
-   * state.
+   * response.It fetches the response from the server and calls updateGameState() to
+   * update the game state.
    *
    * @param {string} move - The move to be played.
    */
