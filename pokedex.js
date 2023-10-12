@@ -1,8 +1,6 @@
 /*
  * Name: Hanyang Yu
  * Date: May 10, 2023
- * Section: CSE 154 AF
- * TA: Donovan Kong && Sonia Saitawdekar
  * This is the JS to implement the UI for the pokedex and two Pokemon cards.
  * A Pokedex is an encyclopedia (or album) of different Pokemon species, representing each
  * Pokemon as a small "sprite" image. Player can choose from the 3 default pokemon and fight
